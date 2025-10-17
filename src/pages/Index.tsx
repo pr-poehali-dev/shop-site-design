@@ -43,6 +43,7 @@ const products: Product[] = [
 export default function Index() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [activeSection, setActiveSection] = useState('home');
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
 
   const addToCart = (product: Product) => {
     setCart(prev => {
@@ -93,7 +94,10 @@ export default function Index() {
               ].map(item => (
                 <button
                   key={item.id}
-                  onClick={() => setActiveSection(item.id)}
+                  onClick={() => {
+                    setActiveSection(item.id);
+                    if (item.id !== 'catalog') setSelectedCategory(null);
+                  }}
                   className={`font-medium transition-colors ${
                     activeSection === item.id
                       ? 'text-primary'
@@ -200,10 +204,17 @@ export default function Index() {
             </section>
 
             <section>
-              <h3 className="text-3xl font-heading font-bold mb-8 text-center">Категории</h3>
+              <h3 className="text-3xl font-heading font-bold mb-8 text-center">Каталог</h3>
               <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-6">
                 {categories.map(category => (
-                  <div key={category.id} className="text-center group cursor-pointer">
+                  <div 
+                    key={category.id} 
+                    className="text-center group cursor-pointer"
+                    onClick={() => {
+                      setActiveSection('catalog');
+                      setSelectedCategory(category.id);
+                    }}
+                  >
                     <div className="relative w-24 h-24 mx-auto mb-3 overflow-hidden rounded-full border-4 border-white shadow-lg hover:shadow-xl transition-all hover-scale">
                       <img 
                         src={category.image} 
@@ -258,55 +269,37 @@ export default function Index() {
 
         {activeSection === 'catalog' && (
           <div className="animate-fade-in">
-            <h2 className="text-4xl font-heading font-bold mb-8">Каталог товаров</h2>
-            <Tabs defaultValue="all" className="mb-8">
-              <TabsList className="grid w-full max-w-md grid-cols-4">
-                <TabsTrigger value="all">Все</TabsTrigger>
-                <TabsTrigger value="sets">Наборы</TabsTrigger>
-                <TabsTrigger value="shapes">Фигуры</TabsTrigger>
-                <TabsTrigger value="numbers">Цифры</TabsTrigger>
-              </TabsList>
-              <TabsContent value="all" className="mt-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {products.map(product => (
-                    <Card key={product.id} className="overflow-hidden hover-scale transition-all shadow-lg hover:shadow-2xl">
-                      <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
-                      <CardContent className="p-4">
-                        <h3 className="font-heading font-bold mb-2">{product.name}</h3>
-                        <p className="text-sm text-gray-600 mb-3">{product.colors.join(', ')}</p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xl font-bold text-primary">{product.price} ₽</span>
-                          <Button size="sm" onClick={() => addToCart(product)} className="bg-gradient-to-r from-[#D93A6A] to-[#E85B83] hover:from-[#C82D5D] hover:to-[#D93A6A]">
-                            <Icon name="Plus" size={16} />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-              {['sets', 'shapes', 'numbers'].map(category => (
-                <TabsContent key={category} value={category} className="mt-8">
-                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {products.filter(p => p.category === category).map(product => (
-                      <Card key={product.id} className="overflow-hidden hover-scale transition-all shadow-lg hover:shadow-2xl">
-                        <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
-                        <CardContent className="p-4">
-                          <h3 className="font-heading font-bold mb-2">{product.name}</h3>
-                          <p className="text-sm text-gray-600 mb-3">{product.colors.join(', ')}</p>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xl font-bold text-primary">{product.price} ₽</span>
-                            <Button size="sm" onClick={() => addToCart(product)} className="bg-gradient-to-r from-[#D93A6A] to-[#E85B83] hover:from-[#C82D5D] hover:to-[#D93A6A]">
-                              <Icon name="Plus" size={16} />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
+            <div className="mb-8">
+              <Button 
+                variant="ghost" 
+                onClick={() => setSelectedCategory(null)}
+                className="mb-4"
+              >
+                <Icon name="ArrowLeft" size={20} className="mr-2" />
+                Все категории
+              </Button>
+              <h2 className="text-4xl font-heading font-bold">
+                {selectedCategory ? categories.find(c => c.id === selectedCategory)?.name : 'Все товары'}
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {products.map(product => (
+                <Card key={product.id} className="overflow-hidden hover-scale transition-all shadow-lg hover:shadow-2xl">
+                  <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
+                  <CardContent className="p-4">
+                    <h3 className="font-heading font-bold mb-2">{product.name}</h3>
+                    <p className="text-sm text-gray-600 mb-3">{product.colors.join(', ')}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xl font-bold text-primary">{product.price} ₽</span>
+                      <Button size="sm" onClick={() => addToCart(product)} className="bg-gradient-to-r from-[#D93A6A] to-[#E85B83] hover:from-[#C82D5D] hover:to-[#D93A6A]">
+                        <Icon name="Plus" size={16} />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
-            </Tabs>
+            </div>
           </div>
         )}
 
