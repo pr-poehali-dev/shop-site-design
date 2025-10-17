@@ -19,6 +19,18 @@ interface CartItem extends Product {
   quantity: number;
 }
 
+const categories = [
+  { id: 1, name: 'Для девушки', image: 'https://cdn.poehali.dev/projects/2691d1e3-27d4-4edb-882a-3be584c18195/files/7d3bba3b-423d-4a41-88f6-ed6182054012.jpg' },
+  { id: 2, name: 'Для мужчины', image: 'https://cdn.poehali.dev/projects/2691d1e3-27d4-4edb-882a-3be584c18195/files/e59f0351-6c78-4c6e-baea-5a5639b79c35.jpg' },
+  { id: 3, name: 'Для девочки', image: 'https://cdn.poehali.dev/projects/2691d1e3-27d4-4edb-882a-3be584c18195/files/7d3bba3b-423d-4a41-88f6-ed6182054012.jpg' },
+  { id: 4, name: 'Для мальчика', image: 'https://cdn.poehali.dev/projects/2691d1e3-27d4-4edb-882a-3be584c18195/files/e59f0351-6c78-4c6e-baea-5a5639b79c35.jpg' },
+  { id: 5, name: 'На выписку', image: 'https://cdn.poehali.dev/projects/2691d1e3-27d4-4edb-882a-3be584c18195/files/47a1e1e4-8b78-4bae-b4f0-74af0b94cade.jpg' },
+  { id: 6, name: 'Гендер пати', image: 'https://cdn.poehali.dev/projects/2691d1e3-27d4-4edb-882a-3be584c18195/files/c675a8a0-5fd0-419a-9eec-7a3295ddf9e6.jpg' },
+  { id: 7, name: 'Годик', image: 'https://cdn.poehali.dev/projects/2691d1e3-27d4-4edb-882a-3be584c18195/files/6f4a9701-19d8-487d-b3b7-9e9c18f0160c.jpg' },
+  { id: 8, name: 'День отца', image: 'https://cdn.poehali.dev/projects/2691d1e3-27d4-4edb-882a-3be584c18195/files/e59f0351-6c78-4c6e-baea-5a5639b79c35.jpg' },
+  { id: 9, name: 'День матери', image: 'https://cdn.poehali.dev/projects/2691d1e3-27d4-4edb-882a-3be584c18195/files/7d3bba3b-423d-4a41-88f6-ed6182054012.jpg' },
+];
+
 const products: Product[] = [
   { id: 1, name: 'Набор разноцветных шариков', price: 1200, image: 'https://cdn.poehali.dev/projects/2691d1e3-27d4-4edb-882a-3be584c18195/files/1f1eaa4e-da84-4a32-bc06-a18ddb783dff.jpg', category: 'sets', colors: ['Микс'] },
   { id: 2, name: 'Сердце розовое', price: 450, image: 'https://cdn.poehali.dev/projects/2691d1e3-27d4-4edb-882a-3be584c18195/files/3b206e54-64de-40a3-8f33-e603b90ee324.jpg', category: 'shapes', colors: ['Розовый', 'Красный'] },
@@ -184,6 +196,24 @@ export default function Index() {
                 Смотреть каталог
                 <Icon name="ArrowRight" size={20} className="ml-2" />
               </Button>
+            </section>
+
+            <section>
+              <h3 className="text-3xl font-heading font-bold mb-8 text-center">Категории</h3>
+              <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-6">
+                {categories.map(category => (
+                  <div key={category.id} className="text-center group cursor-pointer">
+                    <div className="relative w-24 h-24 mx-auto mb-3 overflow-hidden rounded-full border-4 border-white shadow-lg hover:shadow-xl transition-all hover-scale">
+                      <img 
+                        src={category.image} 
+                        alt={category.name} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <p className="text-sm font-medium text-gray-700 group-hover:text-primary transition-colors">{category.name}</p>
+                  </div>
+                ))}
+              </div>
             </section>
 
             <section>
