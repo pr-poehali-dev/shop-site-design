@@ -72,7 +72,7 @@ export default function Index() {
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100">
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-pink-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -107,7 +107,7 @@ export default function Index() {
 
             <Sheet>
               <SheetTrigger asChild>
-                <Button className="relative bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600">
+                <Button className="relative bg-gradient-to-r from-[#D93A6A] to-[#E85B83] hover:from-[#C82D5D] hover:to-[#D93A6A]">
                   <Icon name="ShoppingCart" size={20} />
                   {totalItems > 0 && (
                     <Badge className="absolute -top-2 -right-2 bg-accent animate-scale-in">
@@ -166,7 +166,7 @@ export default function Index() {
                           <span className="text-xl font-heading font-bold">Итого:</span>
                           <span className="text-2xl font-heading font-bold text-primary">{totalPrice} ₽</span>
                         </div>
-                        <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-lg py-6">
+                        <Button className="w-full bg-gradient-to-r from-[#D93A6A] to-[#E85B83] hover:from-[#C82D5D] hover:to-[#D93A6A] text-lg py-6">
                           Оформить заказ
                         </Button>
                       </div>
@@ -182,17 +182,17 @@ export default function Index() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {activeSection === 'home' && (
           <div className="space-y-12 animate-fade-in">
-            <section className="text-center py-20 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-3xl shadow-2xl">
+            <section className="text-center py-20 bg-gradient-to-r from-[#D93A6A] via-[#E85B83] to-[#F47B9C] rounded-3xl shadow-2xl">
               <h2 className="text-5xl md:text-6xl font-heading font-bold text-white mb-6">
-                Воздушные шарики для<br />любого праздника! 🎉
+                Воздушные шары и сувениры<br />для любого праздника! 🎉
               </h2>
               <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-                Создайте незабываемую атмосферу на вашем празднике с нашими яркими шариками
+                Создайте незабываемую атмосферу на вашем празднике с BALOO
               </p>
               <Button
                 size="lg"
                 onClick={() => setActiveSection('catalog')}
-                className="bg-white text-purple-600 hover:bg-gray-100 text-lg px-8 py-6 shadow-xl hover-scale"
+                className="bg-white text-[#D93A6A] hover:bg-gray-100 text-lg px-8 py-6 shadow-xl hover-scale"
               >
                 Смотреть каталог
                 <Icon name="ArrowRight" size={20} className="ml-2" />
@@ -227,7 +227,7 @@ export default function Index() {
                       <h3 className="text-xl font-heading font-bold mb-2">{product.name}</h3>
                       <div className="flex items-center justify-between">
                         <span className="text-2xl font-bold text-primary">{product.price} ₽</span>
-                        <Button onClick={() => addToCart(product)} className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600">
+                        <Button onClick={() => addToCart(product)} className="bg-gradient-to-r from-[#D93A6A] to-[#E85B83] hover:from-[#C82D5D] hover:to-[#D93A6A]">
                           <Icon name="ShoppingCart" size={16} className="mr-2" />
                           В корзину
                         </Button>
@@ -245,7 +245,7 @@ export default function Index() {
                 { icon: 'Heart', title: 'С любовью', desc: 'Каждый заказ упаковываем с заботой' }
               ].map((feature, idx) => (
                 <Card key={idx} className="text-center p-8 hover-scale transition-all">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-pink-400 to-purple-400 mb-4">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[#D93A6A] to-[#E85B83] mb-4">
                     <Icon name={feature.icon as any} size={32} className="text-white" />
                   </div>
                   <h4 className="font-heading font-bold text-xl mb-2">{feature.title}</h4>
@@ -276,7 +276,7 @@ export default function Index() {
                         <p className="text-sm text-gray-600 mb-3">{product.colors.join(', ')}</p>
                         <div className="flex items-center justify-between">
                           <span className="text-xl font-bold text-primary">{product.price} ₽</span>
-                          <Button size="sm" onClick={() => addToCart(product)} className="bg-gradient-to-r from-pink-500 to-purple-500">
+                          <Button size="sm" onClick={() => addToCart(product)} className="bg-gradient-to-r from-[#D93A6A] to-[#E85B83] hover:from-[#C82D5D] hover:to-[#D93A6A]">
                             <Icon name="Plus" size={16} />
                           </Button>
                         </div>
@@ -296,7 +296,7 @@ export default function Index() {
                           <p className="text-sm text-gray-600 mb-3">{product.colors.join(', ')}</p>
                           <div className="flex items-center justify-between">
                             <span className="text-xl font-bold text-primary">{product.price} ₽</span>
-                            <Button size="sm" onClick={() => addToCart(product)} className="bg-gradient-to-r from-pink-500 to-purple-500">
+                            <Button size="sm" onClick={() => addToCart(product)} className="bg-gradient-to-r from-[#D93A6A] to-[#E85B83] hover:from-[#C82D5D] hover:to-[#D93A6A]">
                               <Icon name="Plus" size={16} />
                             </Button>
                           </div>
