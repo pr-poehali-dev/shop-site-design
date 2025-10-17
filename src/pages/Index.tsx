@@ -4,6 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 
 interface Product {
@@ -44,6 +46,9 @@ export default function Index() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [activeSection, setActiveSection] = useState('home');
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priceFilter, setPriceFilter] = useState('all');
+  const [colorFilter, setColorFilter] = useState('all');
 
   const addToCart = (product: Product) => {
     setCart(prev => {
@@ -210,10 +215,7 @@ export default function Index() {
                   <div 
                     key={category.id} 
                     className="text-center group cursor-pointer"
-                    onClick={() => {
-                      setActiveSection('catalog');
-                      setSelectedCategory(category.id);
-                    }}
+                    onClick={() => setActiveSection('catalog')}
                   >
                     <div className="relative w-24 h-24 mx-auto mb-3 overflow-hidden rounded-full border-4 border-white shadow-lg hover:shadow-xl transition-all hover-scale">
                       <img 
@@ -269,37 +271,104 @@ export default function Index() {
 
         {activeSection === 'catalog' && (
           <div className="animate-fade-in">
-            <div className="mb-8">
-              <Button 
-                variant="ghost" 
-                onClick={() => setSelectedCategory(null)}
-                className="mb-4"
-              >
-                <Icon name="ArrowLeft" size={20} className="mr-2" />
-                Все категории
-              </Button>
-              <h2 className="text-4xl font-heading font-bold">
-                {selectedCategory ? categories.find(c => c.id === selectedCategory)?.name : 'Все товары'}
-              </h2>
+            <h2 className="text-4xl font-heading font-bold mb-8">Каталог товаров</h2>
+            
+            <div className="mb-8 space-y-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <Icon name="Search" size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    type="text"
+                    placeholder="Поиск по товарам..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                
+                <Select value={priceFilter} onValueChange={setPriceFilter}>
+                  <SelectTrigger className="w-full md:w-[200px]">
+                    <SelectValue placeholder="Цена" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Все цены</SelectItem>
+                    <SelectItem value="low">До 500 ₽</SelectItem>
+                    <SelectItem value="medium">500 - 1000 ₽</SelectItem>
+                    <SelectItem value="high">Более 1000 ₽</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={colorFilter} onValueChange={setColorFilter}>
+                  <SelectTrigger className="w-full md:w-[200px]">
+                    <SelectValue placeholder="Цвет" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Все цвета</SelectItem>
+                    <SelectItem value="pink">Розовый</SelectItem>
+                    <SelectItem value="gold">Золотой</SelectItem>
+                    <SelectItem value="mix">Микс</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products.map(product => (
-                <Card key={product.id} className="overflow-hidden hover-scale transition-all shadow-lg hover:shadow-2xl">
-                  <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
-                  <CardContent className="p-4">
-                    <h3 className="font-heading font-bold mb-2">{product.name}</h3>
-                    <p className="text-sm text-gray-600 mb-3">{product.colors.join(', ')}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xl font-bold text-primary">{product.price} ₽</span>
-                      <Button size="sm" onClick={() => addToCart(product)} className="bg-gradient-to-r from-[#D93A6A] to-[#E85B83] hover:from-[#C82D5D] hover:to-[#D93A6A]">
-                        <Icon name="Plus" size={16} />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <Tabs defaultValue="all" className="mb-8">
+              <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8">
+                <TabsTrigger value="all">Все товары</TabsTrigger>
+                <TabsTrigger value="sets">Наборы</TabsTrigger>
+                <TabsTrigger value="shapes">Фигуры</TabsTrigger>
+                <TabsTrigger value="numbers">Цифры</TabsTrigger>
+              </TabsList>
+
+              {['all', 'sets', 'shapes', 'numbers'].map(tabValue => {
+                const filteredProducts = products
+                  .filter(p => tabValue === 'all' || p.category === tabValue)
+                  .filter(p => {
+                    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+                    const matchesPrice = 
+                      priceFilter === 'all' || 
+                      (priceFilter === 'low' && p.price < 500) ||
+                      (priceFilter === 'medium' && p.price >= 500 && p.price <= 1000) ||
+                      (priceFilter === 'high' && p.price > 1000);
+                    const matchesColor = 
+                      colorFilter === 'all' ||
+                      (colorFilter === 'pink' && p.colors.some(c => c.toLowerCase().includes('роз'))) ||
+                      (colorFilter === 'gold' && p.colors.some(c => c.toLowerCase().includes('золот'))) ||
+                      (colorFilter === 'mix' && p.colors.some(c => c.toLowerCase().includes('микс')));
+                    
+                    return matchesSearch && matchesPrice && matchesColor;
+                  });
+
+                return (
+                  <TabsContent key={tabValue} value={tabValue}>
+                    {filteredProducts.length === 0 ? (
+                      <div className="text-center py-12">
+                        <Icon name="Search" size={48} className="mx-auto text-gray-300 mb-4" />
+                        <p className="text-gray-500">Товары не найдены</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {filteredProducts.map(product => (
+                          <Card key={product.id} className="overflow-hidden hover-scale transition-all shadow-lg hover:shadow-2xl">
+                            <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
+                            <CardContent className="p-4">
+                              <h3 className="font-heading font-bold mb-2">{product.name}</h3>
+                              <p className="text-sm text-gray-600 mb-3">{product.colors.join(', ')}</p>
+                              <div className="flex items-center justify-between">
+                                <span className="text-xl font-bold text-primary">{product.price} ₽</span>
+                                <Button size="sm" onClick={() => addToCart(product)} className="bg-gradient-to-r from-[#D93A6A] to-[#E85B83] hover:from-[#C82D5D] hover:to-[#D93A6A]">
+                                  <Icon name="Plus" size={16} />
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
+                );
+              })}
+            </Tabs>
           </div>
         )}
 
