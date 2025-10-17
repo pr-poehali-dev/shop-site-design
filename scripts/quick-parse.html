@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Quick YML Parser</title>
+</head>
+<body>
+    <h1>Parsing YML...</h1>
+    <pre id="output"></pre>
+    <script>
+        const YML_URL = 'https://xn--80aqga1abihi8b9a.xn--p1ai/tstore/yml/6b06c1ebf3dc86f07bfa1c2120e387d4.yml';
+        
+        const categoryMap = {
+            '418454360332': 'mother-day',
+            '903544273382': 'girl',
+            '938185508832': 'girl',
+            '677890623652': 'man',
+            '647172376882': 'man',
+            '480949580162': 'father-day',
+            '363431731972': 'girl-kid',
+            '804474588952': 'boy-kid',
+            '551418870082': 'discharge',
+            '859134485432': 'gender-party',
+            '388216421102': 'one-year',
+            '486770416472': 'girl',
+            '669122245592': 'other',
+            '715576008962': 'other',
+            '271055827892': 'other',
+            '346524345142': 'other',
+            '649091827462': 'other',
+            '620575166392': 'other',
+            '363354784102': 'other',
+            '501977884172': 'other',
+            '344791042122': 'other',
+            '146241468622': 'other',
+            '487288603682': 'other',
+        };
+
+        function extractColors(text) {
+            const colorMap = {
+                'розовый': ['розовый', 'розовая', 'розовые', 'розовом'],
+                'синий': ['синий', 'синяя', 'синие', 'синем'],
+                'красный': ['красный', 'красная', 'красные', 'красном'],
+                'белый': ['белый', 'белая', 'белые', 'белом'],
+                'черный': ['черный', 'черная', 'черные', 'черном'],
+                'золотой': ['золотой', 'золотая', 'золотые', 'золотом', 'золото'],
+                'серебряный': ['серебряный', 'серебряная', 'серебряные', 'серебро'],
+                'зеленый': ['зеленый', 'зеленая', 'зеленые', 'зеленом'],
+                'желтый': ['желтый', 'желтая', 'желтые', 'желтом'],
+                'фиолетовый': ['фиолетовый', 'фиолетовая', 'фиолетовые', 'фиолетовом'],
+                'голубой': ['голубой', 'голубая', 'голубые', 'голубом'],
+                'оранжевый': ['оранжевый', 'оранжевая', 'оранжевые', 'оранжевом'],
+                'персиковый': ['персиковый', 'персиковая', 'персиковые', 'персиковом', 'персик'],
+                'мятный': ['мятный', 'мятная', 'мятные', 'мятном', 'мята'],
+            };
+            
+            const lowerText = text.toLowerCase();
+            const foundColors = [];
+            
+            for (const [baseColor, variants] of Object.entries(colorMap)) {
+                for (const variant of variants) {
+                    if (lowerText.includes(variant)) {
+                        if (!foundColors.includes(baseColor)) {
+                            foundColors.push(baseColor);
+                        }
+                        break;
+                    }
+                }
+            }
+            
+            return foundColors;
+        }
+
+        fetch(YML_URL)
+            .then(r => r.text())
+            .then(xml => {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xml, 'text/xml');
+                const offers = xmlDoc.querySelectorAll('offer');
+                
+                const products = [];
+                
+                offers.forEach(offer => {
+                    const id = offer.getAttribute('id');
+                    const nameEl = offer.querySelector('name');
+                    const priceEl = offer.querySelector('price');
+                    const categoryEl = offer.querySelector('categoryId');
+                    const pictureEl = offer.querySelector('picture');
+                    const descEl = offer.querySelector('description');
+                    
+                    if (!nameEl || !priceEl) return;
+                    
+                    const name = nameEl.textContent.trim();
+                    const price = parseFloat(priceEl.textContent);
+                    const categoryId = categoryEl ? categoryEl.textContent : '';
+                    const picture = pictureEl ? pictureEl.textContent.trim() : '';
+                    const description = descEl ? descEl.textContent.replace(/<[^>]*>/g, '').trim() : '';
+                    
+                    const category = categoryMap[categoryId] || 'other';
+                    const colors = extractColors(name + ' ' + description);
+                    
+                    const product = {
+                        id,
+                        name,
+                        price,
+                        image: picture,
+                        category,
+                    };
+                    
+                    if (colors.length > 0) product.colors = colors;
+                    if (description) product.description = description;
+                    
+                    products.push(product);
+                });
+                
+                const tsCode = `// Auto-generated from YML catalog
+// Date: ${new Date().toISOString()}
+// Source: Baloo balloon shop
+// Total products: ${products.length}
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  category: 'girl' | 'man' | 'girl-kid' | 'boy-kid' | 'discharge' | 'gender-party' | 'one-year' | 'father-day' | 'mother-day' | 'other';
+  colors?: string[];
+  description?: string;
+}
+
+export const products: Product[] = ${JSON.stringify(products, null, 2)};
+`;
+                
+                document.getElementById('output').textContent = tsCode;
+                console.log('Products:', products);
+                console.log('Total:', products.length);
+                console.log('Copy the code from the page and save to src/data/products.ts');
+            })
+            .catch(err => {
+                document.getElementById('output').textContent = 'Error: ' + err.message;
+            });
+    </script>
+</body>
+</html>

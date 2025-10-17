@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YML Parser</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        #log {
+            white-space: pre-wrap;
+            background: #252526;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #0e639c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+        .success {
+            color: #4ec9b0;
+        }
+        .error {
+            color: #f48771;
+        }
+        .info {
+            color: #9cdcfe;
+        }
+    </style>
+</head>
+<body>
+    <h1>YML Catalog Parser</h1>
+    <button onclick="fetchAndParse()">Fetch & Parse YML</button>
+    <button onclick="downloadTS()" id="downloadBtn" style="display:none">Download products.ts</button>
+    <div id="log"></div>
+
+    <script>
+        const YML_URL = 'https://xn--80aqga1abihi8b9a.xn--p1ai/tstore/yml/6b06c1ebf3dc86f07bfa1c2120e387d4.yml';
+        let generatedCode = '';
+
+        const categoryMap = {
+            '418454360332': 'mother-day', // Для мамы
+            '903544273382': 'girl', // 8 марта
+            '938185508832': 'girl', // Девушкам
+            '677890623652': 'man', // Мужчинам
+            '647172376882': 'man', // 23 февраля
+            '480949580162': 'father-day', // День отца
+            '363431731972': 'girl-kid', // Девочкам
+            '804474588952': 'boy-kid', // Мальчикам
+            '551418870082': 'discharge', // Выписка
+            '859134485432': 'gender-party', // Гендер-пати
+            '388216421102': 'one-year', // Шары на годик
+            '486770416472': 'girl', // Девичник
+            '669122245592': 'other', // 14 февраля
+            '715576008962': 'other', // Популярные на главной
+            '271055827892': 'other', // Большие шары
+            '346524345142': 'other', // Коробка - сюрприз
+            '649091827462': 'other', // Боксы
+            '620575166392': 'other', // Цифры
+            '363354784102': 'other', // Фольгированные фигуры
+            '501977884172': 'other', // Новые 2025
+            '344791042122': 'other', // All
+            '146241468622': 'other', // Подростковый 2025
+            '487288603682': 'other', // Фотобанк 6.0
+        };
+
+        function log(message, className = '') {
+            const logDiv = document.getElementById('log');
+            const line = document.createElement('div');
+            line.textContent = message;
+            if (className) line.className = className;
+            logDiv.appendChild(line);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function extractColors(text) {
+            const colorMap = {
+                'розовый': ['розовый', 'розовая', 'розовые', 'розовом'],
+                'синий': ['синий', 'синяя', 'синие', 'синем'],
+                'красный': ['красный', 'красная', 'красные', 'красном'],
+                'белый': ['белый', 'белая', 'белые', 'белом'],
+                'черный': ['черный', 'черная', 'черные', 'черном'],
+                'золотой': ['золотой', 'золотая', 'золотые', 'золотом', 'золото'],
+                'серебряный': ['серебряный', 'серебряная', 'серебряные', 'серебро'],
+                'зеленый': ['зеленый', 'зеленая', 'зеленые', 'зеленом'],
+                'желтый': ['желтый', 'желтая', 'желтые', 'желтом'],
+                'фиолетовый': ['фиолетовый', 'фиолетовая', 'фиолетовые', 'фиолетовом'],
+                'голубой': ['голубой', 'голубая', 'голубые', 'голубом'],
+                'оранжевый': ['оранжевый', 'оранжевая', 'оранжевые', 'оранжевом'],
+                'персиковый': ['персиковый', 'персиковая', 'персиковые', 'персиковом', 'персик'],
+                'мятный': ['мятный', 'мятная', 'мятные', 'мятном', 'мята'],
+            };
+            
+            const lowerText = text.toLowerCase();
+            const foundColors = [];
+            
+            for (const [baseColor, variants] of Object.entries(colorMap)) {
+                for (const variant of variants) {
+                    if (lowerText.includes(variant)) {
+                        if (!foundColors.includes(baseColor)) {
+                            foundColors.push(baseColor);
+                        }
+                        break;
+                    }
+                }
+            }
+            
+            return foundColors;
+        }
+
+        function parseYML(xml) {
+            const products = [];
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xml, 'text/xml');
+            
+            const offers = xmlDoc.querySelectorAll('offer');
+            log(`Found ${offers.length} offers`, 'info');
+            
+            offers.forEach(offer => {
+                const id = offer.getAttribute('id');
+                const nameEl = offer.querySelector('name');
+                const priceEl = offer.querySelector('price');
+                const categoryEl = offer.querySelector('categoryId');
+                const pictureEl = offer.querySelector('picture');
+                const descEl = offer.querySelector('description');
+                
+                if (!nameEl || !priceEl) return;
+                
+                const name = nameEl.textContent.trim();
+                const price = parseFloat(priceEl.textContent);
+                const categoryId = categoryEl ? categoryEl.textContent : '';
+                const picture = pictureEl ? pictureEl.textContent.trim() : '';
+                const description = descEl ? descEl.textContent.replace(/<[^>]*>/g, '').trim() : '';
+                
+                const category = categoryMap[categoryId] || 'other';
+                const colors = extractColors(name + ' ' + description);
+                
+                const product = {
+                    id,
+                    name,
+                    price,
+                    image: picture,
+                    category,
+                };
+                
+                if (colors.length > 0) product.colors = colors;
+                if (description) product.description = description;
+                
+                products.push(product);
+            });
+            
+            return products;
+        }
+
+        async function fetchAndParse() {
+            try {
+                document.getElementById('log').innerHTML = '';
+                log('📥 Downloading YML catalog...', 'info');
+                
+                const response = await fetch(YML_URL);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const xml = await response.text();
+                log(`✓ Downloaded ${Math.round(xml.length / 1024)}KB`, 'success');
+                
+                log('🔍 Parsing products...', 'info');
+                const products = parseYML(xml);
+                log(`✓ Found ${products.length} products`, 'success');
+                
+                // Generate TypeScript code
+                const tsCode = `// Auto-generated from YML catalog
+// Date: ${new Date().toISOString()}
+// Source: Baloo balloon shop
+// Total products: ${products.length}
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  category: 'girl' | 'man' | 'girl-kid' | 'boy-kid' | 'discharge' | 'gender-party' | 'one-year' | 'father-day' | 'mother-day' | 'other';
+  colors?: string[];
+  description?: string;
+}
+
+export const products: Product[] = ${JSON.stringify(products, null, 2)};
+`;
+                
+                generatedCode = tsCode;
+                document.getElementById('downloadBtn').style.display = 'inline-block';
+                
+                // Statistics
+                const categories = products.reduce((acc, p) => {
+                    acc[p.category] = (acc[p.category] || 0) + 1;
+                    return acc;
+                }, {});
+                
+                log('\n📊 Products by category:', 'info');
+                Object.entries(categories)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([cat, count]) => {
+                        log(`   ${cat.padEnd(15)} : ${count}`);
+                    });
+                
+                const withColors = products.filter(p => p.colors && p.colors.length > 0).length;
+                const withDescriptions = products.filter(p => p.description).length;
+                
+                log('\n📈 Additional stats:', 'info');
+                log(`   With colors      : ${withColors} (${Math.round(withColors / products.length * 100)}%)`);
+                log(`   With description : ${withDescriptions} (${Math.round(withDescriptions / products.length * 100)}%)`);
+                
+                log('\n✅ Ready to download!', 'success');
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function downloadTS() {
+            const blob = new Blob([generatedCode], { type: 'text/typescript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'products.ts';
+            a.click();
+            URL.revokeObjectURL(url);
+            log('\n✅ Downloaded products.ts', 'success');
+        }
+    </script>
+</body>
+</html>
