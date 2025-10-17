@@ -76,11 +76,12 @@ export default function Index() {
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-pink-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setActiveSection('home')}>
-              <div className="text-3xl animate-float">🎈</div>
-              <h1 className="text-2xl font-heading font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
-                ШарикМаркет
-              </h1>
+            <div className="flex items-center cursor-pointer" onClick={() => setActiveSection('home')}>
+              <img 
+                src="https://cdn.poehali.dev/files/54b03bb9-7b82-4b02-b094-ee45df7a5c43.png" 
+                alt="Baloo" 
+                className="h-12 w-auto"
+              />
             </div>
 
             <nav className="hidden md:flex space-x-8">
@@ -388,8 +389,12 @@ export default function Index() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <h3 className="font-heading font-bold text-lg mb-4">ШарикМаркет</h3>
-              <p className="text-gray-600">Воздушные шарики для вашего праздника</p>
+              <img 
+                src="https://cdn.poehali.dev/files/54b03bb9-7b82-4b02-b094-ee45df7a5c43.png" 
+                alt="Baloo" 
+                className="h-16 w-auto mb-4"
+              />
+              <p className="text-gray-600">Воздушные шары и сувениры</p>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Контакты</h4>
